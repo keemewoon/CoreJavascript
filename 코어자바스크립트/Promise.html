@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body {
+        background: #111;
+        color: #fff;
+        line-height: 140%;
+    }
+
+    .mycircle {
+        width: 30px;
+        height: 30px;
+        background-color: yellow;
+        border-radius: 15px;
+        position: absolute;
+    }
+
+    .goal {
+        width: 10px;
+        background-color: red;
+        position: absolute;
+    }
+
+</style>
+<script>
+    window.addEventListener('load', e => {
+        
+        let goal = document.createElement('div');
+        goal.classList.add('goal')
+        goal.style.right = `0px`
+        goal.style.top = `0px`
+        goal.style.bottom = `0px`;
+        document.body.appendChild(goal);
+        let goalpos = goal.getBoundingClientRect().x;
+
+        
+        function makeCircle(idx) {
+            let promise = new Promise(function(_resolve) {
+                resolve = _resolve;
+            });
+            let running = false;
+            let speed = 3+ (3* Math.random());
+            let left = 0;
+            let size = 30;
+            let top = idx * size;
+            let circle = document.createElement('div');
+            circle.addEventListener('click', start);
+            circle.classList.add('mycircle')
+            circle.style.left = `${left}px`
+            circle.style.top = `${top}px`
+            document.body.appendChild(circle);
+
+
+            function run(){
+                //console.log(Math.random()); //running을 false로 만드니까 더이상 run함수가 안돌아~
+                if(!running) return;
+                left += speed;
+                if(goalpos < left + size) {
+                    left = goalpos - size;
+                    running = false;
+                    resolve(); //promise는 이동중일때는 pending이다가 도착하면 resolve()가 실행되어 fulfilled상태로 전환된다.
+                }
+                circle.style.left = `${left}px`
+                requestAnimationFrame(run); //인자로 함수를 넘긴다.
+            }
+        
+            function start(){
+                running = true;
+                run();
+            }
+            return {
+                start,
+                promise
+            };
+        }
+        console.log('A1');
+        let circle0 = makeCircle(0);
+        console.log('A2');
+        let circle1 = makeCircle(1);
+        console.log('A3');
+        async function aa() {
+            console.log('A4');
+            await circle0.promise; //pending상태에서 기다리다가 fulfilled상태로 B가 찍힌다.
+            console.log('A5');
+            await circle1.promise;
+            console.log('A6');
+            console.log('도착!');
+        }
+        aa();
+
+    });
+</script>
+<body>
+    
+</body>
+</html>
